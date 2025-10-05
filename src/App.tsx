@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './components/Header/Header';
 import Game from './components/Game/Game';
 import Footer from './components/Footer/Footer';
@@ -6,12 +6,33 @@ import LoadingScreen from './components/LoadingScreen/LoadingScreen';
 import Error from './components/Error/Error';
 import { useDeviceDetection } from './components/Error/useDeviceDetection';
 
+import errorImage from './components/Error/error.png';
+import controlsImage from './components/Game/controls.png';
+
 type PageType = 'game' | 'home';
 
 function App(): React.ReactElement {
   const [currentPage, setCurrentPage] = useState<PageType>('game');
   const [showLoadingScreen, setShowLoadingScreen] = useState<boolean>(true);
   const { isDesktop, isMobile, isTablet } = useDeviceDetection();
+
+
+  useEffect(() => {
+    const preloadImages = [
+      errorImage,
+      controlsImage
+    ];
+
+    preloadImages.forEach(src => {
+      const img = new Image();
+      img.src = src;
+      
+ 
+      const webpSrc = src.replace(/\.(png|jpg|jpeg)$/i, '.webp');
+      const webpImg = new Image();
+      webpImg.src = webpSrc;
+    });
+  }, []);
 
   const handleWelcome = () => {
     setShowLoadingScreen(false);

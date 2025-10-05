@@ -2,13 +2,17 @@ import React, { useState, useRef, useEffect } from 'react';
 import fonVideo from './fon.mp4';
 import introVideo from './intro.mp4';
 import controlsImage from './controls.png';
+import OptimizedImage from '../OptimizedImage/OptimizedImage';
 import TextScroll from '../TextScroll/TextScroll';
 
 const Game: React.FC = () => {
     const [videoPlaying, setVideoPlaying] = useState<boolean>(false);
     const [showSkipMessage, setShowSkipMessage] = useState<boolean>(false);
-    const [showTextScroll, setShowTextScroll] = useState<boolean>(false);
+    const [showTextScroll, setShowTextScroll] = useState<boolean>(false);    
+    const [activeVideo, setActiveVideo] = useState<number>(0); 
     const videoRef = useRef<HTMLVideoElement | null>(null);
+    const backgroundVideoRef = useRef<HTMLVideoElement | null>(null);
+    const backgroundVideoRef2 = useRef<HTMLVideoElement | null>(null);
 
 
 
@@ -35,12 +39,56 @@ const Game: React.FC = () => {
         };
     }, [videoPlaying]);
 
+    
+    
+
+    useEffect(() => {
+        const setupVideo = (videoElement: HTMLVideoElement | null) => {
+            if (!videoElement) return;
+            
+            videoElement.preload = 'auto';
+            videoElement.load();
+            
+            const handleEnded = () => {
+              
+                setActiveVideo(prev => prev === 0 ? 1 : 0);
+                
+               
+                videoElement.currentTime = 0;
+                videoElement.play().catch(console.error);
+            };
+            
+            const handleCanPlay = () => {
+                if (activeVideo === (videoElement === backgroundVideoRef.current ? 0 : 1)) {
+                    videoElement.play().catch(console.error);
+                }
+            };
+            
+            videoElement.addEventListener('ended', handleEnded);
+            videoElement.addEventListener('canplay', handleCanPlay);
+            
+            return () => {
+                videoElement.removeEventListener('ended', handleEnded);
+                videoElement.removeEventListener('canplay', handleCanPlay);
+            };
+        };
+        
+        const cleanup1 = setupVideo(backgroundVideoRef.current);
+        const cleanup2 = setupVideo(backgroundVideoRef2.current);
+        
+        return () => {
+            cleanup1?.();
+            cleanup2?.();
+        };
+    }, [activeVideo]);
+
     const startVideo = () => {
         window.dispatchEvent(new CustomEvent('gameStarted'));
         
         setVideoPlaying(true);
         setShowSkipMessage(true);
         if (videoRef.current) {
+            videoRef.current.currentTime = 0; 
             videoRef.current.play();
         }
     };
@@ -67,6 +115,7 @@ const Game: React.FC = () => {
             position: 'relative',
         }}>
             <video
+                ref={backgroundVideoRef}
                 style={{
                     position: 'absolute',
                     top: 0,
@@ -76,11 +125,38 @@ const Game: React.FC = () => {
                     objectFit: 'cover',
                     objectPosition: 'center left',
                     zIndex: -1,
+                    transition: 'none',
+                    filter: 'brightness(1.1) contrast(1.05)',
+                    opacity: activeVideo === 0 ? 1 : 0,
                 }}
                 autoPlay
                 muted
-                loop
                 playsInline
+                preload="auto"
+                webkit-playsinline="true"
+            >
+                <source src={fonVideo} type="video/mp4" />
+            </video>
+            <video
+                ref={backgroundVideoRef2}
+                style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: '-5%',
+                    width: '110%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    objectPosition: 'center left',
+                    zIndex: -1,
+                    transition: 'none',
+                    filter: 'brightness(1.1) contrast(1.05)',
+                    opacity: activeVideo === 1 ? 1 : 0,
+                }}
+                autoPlay
+                muted
+                playsInline
+                preload="auto"
+                webkit-playsinline="true"
             >
                 <source src={fonVideo} type="video/mp4" />
             </video>
@@ -97,8 +173,11 @@ const Game: React.FC = () => {
                         height: '100%',
                         objectFit: 'cover',
                         zIndex: 20,
+                        transition: 'opacity 0.5s ease-in-out',
                     }}
                     autoPlay
+                    muted
+                    preload="auto"
                 />
             )}
 
@@ -175,9 +254,7 @@ const Game: React.FC = () => {
                             position: 'relative',
                             display: 'inline-block',
                         }}>
-                            <img 
-                                src={controlsImage} 
-                                alt="Game Controls" 
+                            <div
                                 style={{
                                     maxWidth: '100%',
                                     height: 'auto',
@@ -188,7 +265,19 @@ const Game: React.FC = () => {
                                 }}
                                 onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
                                 onMouseLeave={(e) => e.currentTarget.style.opacity = '0.9'}
-                            />
+                            >
+                                <OptimizedImage
+                                    src={controlsImage}
+                                    alt="Game Controls"
+                                    loading="lazy"
+                                    placeholder="Загрузка управления..."
+                                    style={{
+                                        width: '100%',
+                                        height: 'auto',
+                                        borderRadius: '10px',
+                                    }}
+                                />
+                            </div>
                             
                             
                             <button 
