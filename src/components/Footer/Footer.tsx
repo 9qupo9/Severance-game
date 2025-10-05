@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import soundFile from './sound.mp3';
+
+// Import audio file from public folder
+const soundFile = '/sound.mp3';
 
 const Footer: React.FC = () => {
   const currentYear: number = new Date().getFullYear();

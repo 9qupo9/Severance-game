@@ -1,7 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import OptimizedImage from '../OptimizedImage/OptimizedImage';
-import errorImage from './error.png';
+
+
+const errorImage = '/error.png';
 
 const Error: React.FC = () => {
   return (
@@ -17,10 +18,13 @@ const Error: React.FC = () => {
       alignItems: 'center',
       zIndex: 10000,
     }}>
-      <motion.div
+      <motion.img 
+        src={errorImage} 
+        alt="Desktop Only" 
         style={{
           maxWidth: '80%',
           maxHeight: '80%',
+          objectFit: 'contain',
         }}
         animate={{
           opacity: [0.8, 1, 0.8],
@@ -31,19 +35,7 @@ const Error: React.FC = () => {
           ease: "easeInOut",
           repeat: Infinity,
         }}
-      >
-        <OptimizedImage
-          src={errorImage}
-          alt="Desktop Only"
-          loading="eager"
-          placeholder="Загрузка..."
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'contain',
-          }}
-        />
-      </motion.div>
+      />
     </div>
   );
 };

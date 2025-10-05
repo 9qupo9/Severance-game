@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, useAnimation } from 'framer-motion';
-import backgroundVideo from './fon2.mp4';
-import introAudio from './intro.mp3';
+
+
+const backgroundVideo = '/fon2.mp4';
+const introAudio = '/intro.mp3';
 
 interface TextScrollProps {
     onComplete?: () => void;
