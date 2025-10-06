@@ -10,7 +10,11 @@ const Game: React.FC = () => {
     const [videoPlaying, setVideoPlaying] = useState<boolean>(false);
     const [showSkipMessage, setShowSkipMessage] = useState<boolean>(false);
     const [showTextScroll, setShowTextScroll] = useState<boolean>(false);
+    const [activeVideoIndex, setActiveVideoIndex] = useState<number>(0);
+    const [hasStartedSecondCycle, setHasStartedSecondCycle] = useState<boolean>(false);
     const videoRef = useRef<HTMLVideoElement | null>(null);
+    const backgroundVideoRef1 = useRef<HTMLVideoElement | null>(null);
+    const backgroundVideoRef2 = useRef<HTMLVideoElement | null>(null);
 
 
 
@@ -36,6 +40,54 @@ const Game: React.FC = () => {
             document.removeEventListener('keydown', handleKeyDown);
         };
     }, [videoPlaying]);
+
+   
+    useEffect(() => {
+        const video1 = backgroundVideoRef1.current;
+        const video2 = backgroundVideoRef2.current;
+        if (!video1 || !video2) return;
+
+        const activeVideo = activeVideoIndex === 0 ? video1 : video2;
+        const nextVideo = activeVideoIndex === 0 ? video2 : video1;
+
+        
+        [video1, video2].forEach((v) => {
+            v.style.position = "absolute";
+            v.style.top = "0";
+            v.style.left = "0";
+            v.style.width = "100%";
+            v.style.height = "100%";
+            v.style.objectFit = "cover";
+            v.style.transition = "opacity 2s ease-in-out";
+        });
+
+      
+        video1.style.opacity = activeVideoIndex === 0 ? "1" : "0";
+        video2.style.opacity = activeVideoIndex === 1 ? "1" : "0";
+
+        const handleTimeUpdate = () => {
+            const timeLeft = activeVideo.duration - activeVideo.currentTime;
+
+            if (timeLeft <= 2 && !hasStartedSecondCycle) {
+                setHasStartedSecondCycle(true);
+                nextVideo.currentTime = 0.1;
+                nextVideo.play();
+
+                
+                nextVideo.style.opacity = "1";  
+                activeVideo.style.opacity = "0"; 
+
+                
+                setTimeout(() => {
+                    setActiveVideoIndex(activeVideoIndex === 0 ? 1 : 0);
+                    setHasStartedSecondCycle(false);
+                }, 500); 
+            }
+        };
+
+        activeVideo.addEventListener("timeupdate", handleTimeUpdate);
+        return () => activeVideo.removeEventListener("timeupdate", handleTimeUpdate);
+    }, [activeVideoIndex, hasStartedSecondCycle]);
 
     const startVideo = () => {
         window.dispatchEvent(new CustomEvent('gameStarted'));
@@ -69,6 +121,7 @@ const Game: React.FC = () => {
             position: 'relative',
         }}>
             <video
+                ref={backgroundVideoRef1}
                 style={{
                     position: 'absolute',
                     top: 0,
@@ -78,10 +131,29 @@ const Game: React.FC = () => {
                     objectFit: 'cover',
                     objectPosition: 'center left',
                     zIndex: -1,
+                    opacity: activeVideoIndex === 0 ? 1 : 0
                 }}
                 autoPlay
                 muted
-                loop
+                playsInline
+            >
+                <source src={fonVideo} type="video/mp4" />
+            </video>
+            <video
+                ref={backgroundVideoRef2}
+                style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: '-5%',
+                    width: '110%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    objectPosition: 'center left',
+                    zIndex: -1,
+                    opacity: activeVideoIndex === 1 ? 1 : 0
+                }}
+                autoPlay={false}
+                muted
                 playsInline
             >
                 <source src={fonVideo} type="video/mp4" />
