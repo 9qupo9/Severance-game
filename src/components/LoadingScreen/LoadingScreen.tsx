@@ -83,7 +83,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ onWelcome }) => {
           </p>
         </div>
         
-        {/* Индикатор загрузки медиа файлов */}
+        
         <div style={{
           marginBottom: '20px',
           padding: '15px',
@@ -113,7 +113,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ onWelcome }) => {
             </span>
           </div>
           
-          {/* Прогресс бар */}
+          
           <div style={{
             width: '100%',
             height: '8px',

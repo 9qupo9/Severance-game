@@ -54,7 +54,7 @@ const Game: React.FC = () => {
         [video1, video2].forEach((v) => {
             v.style.position = "absolute";
             v.style.top = "0";
-            v.style.left = "0";
+            v.style.left = "-5px";
             v.style.width = "100%";
             v.style.height = "100%";
             v.style.objectFit = "cover";
@@ -148,7 +148,7 @@ const Game: React.FC = () => {
                     width: '110%',
                     height: '100%',
                     objectFit: 'cover',
-                    objectPosition: 'center left',
+                    objectPosition: 'center',
                     zIndex: -1,
                     opacity: activeVideoIndex === 1 ? 1 : 0
                 }}

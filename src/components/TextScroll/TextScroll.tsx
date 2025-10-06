@@ -13,9 +13,9 @@ const TextScroll: React.FC<TextScrollProps> = ({ onComplete }) => {
     const [showSkipMessage, setShowSkipMessage] = useState(true);
     const [activeVideoIndex, setActiveVideoIndex] = useState(0);
     const [hasStartedSecondCycle, setHasStartedSecondCycle] = useState(false);
-    const audioRef = useRef<HTMLAudioElement>(null);
     const backgroundVideoRef1 = useRef<HTMLVideoElement>(null);
     const backgroundVideoRef2 = useRef<HTMLVideoElement>(null);
+    const audioRef = useRef<HTMLAudioElement>(null);
     const controls = useAnimation();
 
     useEffect(() => {
@@ -33,6 +33,29 @@ const TextScroll: React.FC<TextScrollProps> = ({ onComplete }) => {
             }
         });
     }, [controls]);
+
+    useEffect(() => {
+        const audio = audioRef.current;
+        if (!audio) return;
+
+        const playAudio = async () => {
+            try {
+                audio.load();
+                await audio.play();
+            } catch (error) {
+                console.log('Audio autoplay prevented:', error);
+            }
+        };
+
+        playAudio();
+
+        return () => {
+            if (audio) {
+                audio.pause();
+                audio.currentTime = 0;
+            }
+        };
+    }, []);
 
     useEffect(() => {
         const video1 = backgroundVideoRef1.current;
@@ -102,13 +125,10 @@ Only then will he learn what it means to carry light where even the gods have tu
     const handleComplete = useCallback(() => {
         const audio = audioRef.current;
         if (audio) {
-            try {
-                audio.pause();
-                audio.currentTime = 0;
-            } catch (error) {
-                console.warn('Ошибка при остановке аудио:', error);
-            }
+            audio.pause();
+            audio.currentTime = 0;
         }
+        
         if (onComplete) {
             onComplete();
         }
@@ -121,52 +141,6 @@ Only then will he learn what it means to carry light where even the gods have tu
     }, [controls, handleComplete]);
 
     useEffect(() => {
-        let isComponentMounted = true;
-        let playPromise: Promise<void> | undefined;
-
-        const handleCanPlay = () => {
-            const audio = audioRef.current;
-            if (isComponentMounted && audio) {
-                // Попытка воспроизведения с обработкой ошибок автовоспроизведения
-                playPromise = audio.play();
-                if (playPromise) {
-                    playPromise.catch((error) => {
-                        if (isComponentMounted) {
-                            console.warn('Автовоспроизведение заблокировано браузером:', error);
-                            // Добавляем обработчик клика для запуска аудио после взаимодействия пользователя
-                            const startAudioOnInteraction = () => {
-                                if (audio && isComponentMounted) {
-                                    audio.play().catch(err => {
-                                        console.error('Ошибка воспроизведения после взаимодействия:', err);
-                                    });
-                                }
-                                document.removeEventListener('click', startAudioOnInteraction);
-                                document.removeEventListener('keydown', startAudioOnInteraction);
-                            };
-                            document.addEventListener('click', startAudioOnInteraction, { once: true });
-                            document.addEventListener('keydown', startAudioOnInteraction, { once: true });
-                        }
-                    });
-                }
-            }
-        };
-
-        const handleError = (error: Event) => {
-            if (isComponentMounted) {
-                console.error('Ошибка загрузки аудио файла:', error);
-            }
-        };
-
-        const audio = audioRef.current;
-        if (audio) {
-            audio.volume = 0.7;
-            // Принудительная загрузка аудио
-            audio.load();
-            audio.addEventListener('canplay', handleCanPlay);
-            audio.addEventListener('error', handleError);
-            
-        }
-
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.code === 'Space') {
                 event.preventDefault();
@@ -181,27 +155,8 @@ Only then will he learn what it means to carry light where even the gods have tu
         }, 75000);
 
         return () => {
-            isComponentMounted = false;
             document.removeEventListener('keydown', handleKeyDown);
             clearTimeout(timer);
-            
-            if (audio) {
-                audio.removeEventListener('canplay', handleCanPlay);
-                audio.removeEventListener('error', handleError);
-                
-                if (playPromise) {
-                    playPromise.then(() => {
-                        if (audio) {
-                            audio.pause();
-                            audio.currentTime = 0;
-                        }
-                    }).catch(() => {
-                    });
-                } else {
-                    audio.pause();
-                    audio.currentTime = 0;
-                }
-            }
         };
     }, [handleComplete, handleSkip]);
 
@@ -278,10 +233,6 @@ Only then will he learn what it means to carry light where even the gods have tu
                 Your browser does not support the video element.
             </video>
             
-            <audio ref={audioRef} loop src={introAudio} preload="auto">
-                Your browser does not support the audio element.
-            </audio>
-            
             <div style={{
                 position: 'relative',
                 width: '80%',
@@ -345,6 +296,14 @@ Only then will he learn what it means to carry light where even the gods have tu
                     Press SPACE to skip
                 </motion.div>
             )}
+            
+            <audio 
+                ref={audioRef}
+                src={introAudio}
+                loop
+                preload="auto"
+                style={{ display: 'none' }}
+            />
         </div>
     );
 };

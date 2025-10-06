@@ -18,6 +18,7 @@ export const useMediaPreloader = () => {
   });
 
   const hasStarted = useRef(false);
+  const loadedCache = useRef(new Set<string>());
 
   const mediaFiles = useMemo(() => [
     // Video files
@@ -34,6 +35,11 @@ export const useMediaPreloader = () => {
   ], []);
 
   const preloadMedia = useCallback((src: string): Promise<void> => {
+    
+    if (loadedCache.current.has(src)) {
+      return Promise.resolve();
+    }
+
     return new Promise((resolve, reject) => {
       fetch(src)
         .then(response => {
@@ -43,9 +49,9 @@ export const useMediaPreloader = () => {
           return response.blob();
         })
         .then(blob => {
-          
+         
+          loadedCache.current.add(src);
           const url = URL.createObjectURL(blob);
-          
           URL.revokeObjectURL(url);
           resolve();
         })
