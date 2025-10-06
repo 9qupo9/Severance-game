@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-// Import audio file from public folder
+
 const soundFile = '/sound.mp3';
 
 const Footer: React.FC = () => {
@@ -176,7 +176,7 @@ const Footer: React.FC = () => {
             <audio
               ref={audioRef}
               loop
-              preload="auto"
+              preload="none"
               playsInline
             >
               <source src={soundFile} type="audio/mpeg" />

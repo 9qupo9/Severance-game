@@ -149,7 +149,7 @@ Only then will he learn what it means to carry light where even the gods have tu
             audio.volume = 0.7;
             audio.addEventListener('canplay', handleCanPlay);
             audio.addEventListener('error', handleError);
-            audio.load();
+            
         }
 
         const handleKeyDown = (event: KeyboardEvent) => {
@@ -226,7 +226,7 @@ Only then will he learn what it means to carry light where even the gods have tu
                 loop 
                 muted 
                 playsInline
-                preload="auto"
+                preload="none"
                 disablePictureInPicture
                 controls={false}
                 src={backgroundVideo}
@@ -255,7 +255,7 @@ Only then will he learn what it means to carry light where even the gods have tu
                 loop 
                 muted 
                 playsInline
-                preload="auto"
+                preload="none"
                 disablePictureInPicture
                 controls={false}
                 src={backgroundVideo}
@@ -263,7 +263,7 @@ Only then will he learn what it means to carry light where even the gods have tu
                 Your browser does not support the video element.
             </video>
             
-            <audio ref={audioRef} loop src={introAudio} preload="auto">
+            <audio ref={audioRef} loop src={introAudio} preload="none">
                 Your browser does not support the audio element.
             </audio>
             

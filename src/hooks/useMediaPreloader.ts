@@ -20,11 +20,17 @@ export const useMediaPreloader = () => {
   const hasStarted = useRef(false);
 
   const mediaFiles = useMemo(() => [
+    // Video files
     '/fon.mp4',
     '/fon2.mp4',
     '/intro.mp4',
+    // Audio files
     '/intro.mp3',
-    '/sound.mp3'
+    '/sound.mp3',
+    // Image files
+    '/controls.png',
+    '/error.png',
+    '/logo-game.png'
   ], []);
 
   const preloadMedia = useCallback((src: string): Promise<void> => {
