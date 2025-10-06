@@ -127,11 +127,24 @@ Only then will he learn what it means to carry light where even the gods have tu
         const handleCanPlay = () => {
             const audio = audioRef.current;
             if (isComponentMounted && audio) {
+                // Попытка воспроизведения с обработкой ошибок автовоспроизведения
                 playPromise = audio.play();
                 if (playPromise) {
                     playPromise.catch((error) => {
                         if (isComponentMounted) {
-                            console.error('Ошибка воспроизведения музыки:', error);
+                            console.warn('Автовоспроизведение заблокировано браузером:', error);
+                            // Добавляем обработчик клика для запуска аудио после взаимодействия пользователя
+                            const startAudioOnInteraction = () => {
+                                if (audio && isComponentMounted) {
+                                    audio.play().catch(err => {
+                                        console.error('Ошибка воспроизведения после взаимодействия:', err);
+                                    });
+                                }
+                                document.removeEventListener('click', startAudioOnInteraction);
+                                document.removeEventListener('keydown', startAudioOnInteraction);
+                            };
+                            document.addEventListener('click', startAudioOnInteraction, { once: true });
+                            document.addEventListener('keydown', startAudioOnInteraction, { once: true });
                         }
                     });
                 }
@@ -147,6 +160,8 @@ Only then will he learn what it means to carry light where even the gods have tu
         const audio = audioRef.current;
         if (audio) {
             audio.volume = 0.7;
+            // Принудительная загрузка аудио
+            audio.load();
             audio.addEventListener('canplay', handleCanPlay);
             audio.addEventListener('error', handleError);
             
@@ -263,7 +278,7 @@ Only then will he learn what it means to carry light where even the gods have tu
                 Your browser does not support the video element.
             </video>
             
-            <audio ref={audioRef} loop src={introAudio} preload="none">
+            <audio ref={audioRef} loop src={introAudio} preload="auto">
                 Your browser does not support the audio element.
             </audio>
             
