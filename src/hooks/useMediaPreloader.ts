@@ -62,37 +62,41 @@ export const useMediaPreloader = () => {
     });
 
     const totalFiles = mediaFiles.length;
-    let loadedCount = 0;
 
     
-    for (const file of mediaFiles) {
+    for (let i = 0; i < mediaFiles.length; i++) {
+      const file = mediaFiles[i];
       try {
         await preloadMedia(file);
-        loadedCount++;
         
-        const progress = Math.round((loadedCount / totalFiles) * 100);
-        
-        setState(prev => ({
-          ...prev,
-          loadedFiles: loadedCount,
-          loadingProgress: progress,
-          isLoaded: loadedCount === totalFiles
-        }));
+        setState(prev => {
+          const newLoadedCount = prev.loadedFiles + 1;
+          const progress = Math.round((newLoadedCount / totalFiles) * 100);
+          
+          return {
+            ...prev,
+            loadedFiles: newLoadedCount,
+            loadingProgress: progress,
+            isLoaded: newLoadedCount === totalFiles
+          };
+        });
         
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : `Failed to load ${file}`;
         console.warn(errorMessage);
         
-        loadedCount++;
-        const progress = Math.round((loadedCount / totalFiles) * 100);
-        
-        setState(prev => ({
-          ...prev,
-          loadedFiles: loadedCount,
-          loadingProgress: progress,
-          isLoaded: loadedCount === totalFiles,
-          errors: [...prev.errors, errorMessage]
-        }));
+        setState(prev => {
+          const newLoadedCount = prev.loadedFiles + 1;
+          const progress = Math.round((newLoadedCount / totalFiles) * 100);
+          
+          return {
+            ...prev,
+            loadedFiles: newLoadedCount,
+            loadingProgress: progress,
+            isLoaded: newLoadedCount === totalFiles,
+            errors: [...prev.errors, errorMessage]
+          };
+        });
       }
     }
   }, [mediaFiles, preloadMedia]);
