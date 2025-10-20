@@ -256,7 +256,7 @@ const Footer: React.FC = () => {
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
                 marginLeft: '0.3rem',
-              }}>Tenespir</span>
+              }}>Kapal2024</span>
             </div>
           </div>
         </div>
