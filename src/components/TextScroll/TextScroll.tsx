@@ -18,21 +18,40 @@ const TextScroll: React.FC<TextScrollProps> = ({ onComplete }) => {
     const audioRef = useRef<HTMLAudioElement>(null);
     const controls = useAnimation();
 
+
+    const onCompleteRef = useRef(onComplete);
+    onCompleteRef.current = onComplete;
+
+    const handleComplete = useCallback(() => {
+        const audio = audioRef.current;
+        if (audio) {
+            audio.pause();
+            audio.currentTime = 0;
+        }
+
+        if (onCompleteRef.current) {
+            onCompleteRef.current();
+        }
+    }, []);
+
     useEffect(() => {
-      
+
         controls.start({
             bottom: '120%',
             opacity: [0, 1, 1, 0],
             transition: {
-                duration: 80,
+                duration: 70,
                 ease: 'linear',
                 opacity: {
                     times: [0, 0.1, 0.9, 1],
-                    duration: 80,
+                    duration: 70,
                 }
             }
+        }).then(() => {
+
+            handleComplete();
         });
-    }, [controls]);
+    }, [controls, handleComplete]);
 
     useEffect(() => {
         const audio = audioRef.current;
@@ -43,7 +62,7 @@ const TextScroll: React.FC<TextScrollProps> = ({ onComplete }) => {
                 audio.load();
                 await audio.play();
             } catch (error) {
-                console.log('Audio autoplay prevented:', error);
+
             }
         };
 
@@ -83,7 +102,7 @@ const TextScroll: React.FC<TextScrollProps> = ({ onComplete }) => {
             v.style.pointerEvents = "none";
         });
 
-        
+
         video1.style.opacity = activeVideoIndex === 0 ? "0.3" : "0";
         video2.style.opacity = activeVideoIndex === 1 ? "0.3" : "0";
 
@@ -122,21 +141,9 @@ Every recruit, before calling himself a paladin, must undertake the SEVERANCE ve
 
 Only then will he learn what it means to carry light where even the gods have turned away.`;
 
-    const handleComplete = useCallback(() => {
-        const audio = audioRef.current;
-        if (audio) {
-            audio.pause();
-            audio.currentTime = 0;
-        }
-        
-        if (onComplete) {
-            onComplete();
-        }
-    }, [onComplete]);
-
     const handleSkip = useCallback(() => {
         setShowSkipMessage(false);
-        controls.stop(); 
+        controls.stop();
         handleComplete();
     }, [controls, handleComplete]);
 
@@ -150,13 +157,8 @@ Only then will he learn what it means to carry light where even the gods have tu
 
         document.addEventListener('keydown', handleKeyDown);
 
-        const timer = setTimeout(() => {
-            handleComplete();
-        }, 75000);
-
         return () => {
             document.removeEventListener('keydown', handleKeyDown);
-            clearTimeout(timer);
         };
     }, [handleComplete, handleSkip]);
 
@@ -174,7 +176,7 @@ Only then will he learn what it means to carry light where even the gods have tu
             alignItems: 'center',
             justifyContent: 'center',
         }}>
-            <video 
+            <video
                 ref={backgroundVideoRef1}
                 style={{
                     position: 'absolute',
@@ -192,9 +194,9 @@ Only then will he learn what it means to carry light where even the gods have tu
                     imageRendering: 'pixelated',
                     pointerEvents: 'none'
                 }}
-                autoPlay 
-                loop 
-                muted 
+                autoPlay
+                loop
+                muted
                 playsInline
                 preload="none"
                 disablePictureInPicture
@@ -203,8 +205,8 @@ Only then will he learn what it means to carry light where even the gods have tu
             >
                 Your browser does not support the video element.
             </video>
-            
-            <video 
+
+            <video
                 ref={backgroundVideoRef2}
                 style={{
                     position: 'absolute',
@@ -222,8 +224,8 @@ Only then will he learn what it means to carry light where even the gods have tu
                     imageRendering: 'pixelated',
                     pointerEvents: 'none'
                 }}
-                loop 
-                muted 
+                loop
+                muted
                 playsInline
                 preload="none"
                 disablePictureInPicture
@@ -232,7 +234,7 @@ Only then will he learn what it means to carry light where even the gods have tu
             >
                 Your browser does not support the video element.
             </video>
-            
+
             <div style={{
                 position: 'relative',
                 width: '80%',
@@ -242,7 +244,7 @@ Only then will he learn what it means to carry light where even the gods have tu
                 alignItems: 'flex-end',
                 justifyContent: 'center',
             }}>
-                <motion.div 
+                <motion.div
                     animate={controls}
                     initial={{
                         bottom: '-330%',
@@ -269,7 +271,7 @@ Only then will he learn what it means to carry light where even the gods have tu
             </div>
 
             {showSkipMessage && (
-                <motion.div 
+                <motion.div
                     style={{
                         position: 'fixed',
                         bottom: '100px',
@@ -296,8 +298,8 @@ Only then will he learn what it means to carry light where even the gods have tu
                     Press SPACE to skip
                 </motion.div>
             )}
-            
-            <audio 
+
+            <audio
                 ref={audioRef}
                 src={introAudio}
                 loop
