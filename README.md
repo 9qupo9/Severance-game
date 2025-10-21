@@ -81,8 +81,9 @@ All rights reserved. You cannot use, copy, or distribute this project without wr
 
 🤝 Contributing
 
-Found a bug or have an idea? Feel free to open an issue or submit a pull request—we’d love your help improving the game!
+  Found a bug or have an idea? Feel free to open an issue or submit a pull request—we’d love your help improving the game!
 
 👨‍💻 Author
+
 
 Creator:Kapal2024
